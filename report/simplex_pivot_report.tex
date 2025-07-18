@@ -1,0 +1,235 @@
+\documentclass[a4paper]{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{physics}
+\usepackage{fancyvrb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{subfigure}
+\usepackage{xcolor}
+
+\numberwithin{equation}{section}
+
+\title{Simplex pivot report}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Python codes}
+\label{sec:code}
+
+\subsection{Code for \texttt{find\_pivot\_largest\_subscript}}
+\label{sec:code_ls}
+
+
+\begin{lstlisting}[language=Python,numbers=left,numbersep=5pt, breaklines=true]
+  def find_pivot_largest_subscript(tableau):
+    """
+    Uses largest subscript case and the minimum ratio test to find the pivot entry in the tableau.
+
+    Parameters
+    ----------
+    tableau : array
+        The simplex method tableau in basic form
+
+    Returns
+    -------
+    r, s : integer
+        Row and column indexes of the pivot
+        
+    Notes
+    -----
+    Assumes that there is a negative reduced cost that we can pivot on.
+    """
+    M, N = tableau.shape
+    m = M - 1
+    n = N - 1
+    # Largest subscript rule: find the first negative reduced cost from the right of the tableau
+    s = n
+    while tableau[0, s] >= 0:
+        s -= 1
+    # Minimum ratio test and largest subscript rule put together:
+    r = 0
+    theta_star = np.inf
+    for i in range(m, 0, -1):
+        if tableau[i, s] > 0:
+            if tableau[i, 0] / tableau[i, s] < theta_star:
+                r = i
+                theta_star = tableau[i, 0] / tableau[i, s]
+    final_r = r
+    final_s = s
+    return final_r, final_s
+\end{lstlisting}
+  
+
+\subsection{Code for \texttt{find\_pivot\_largest\_coefficient}}
+\label{sec:code_lc}
+
+
+\begin{lstlisting}[language=Python,numbers=left,numbersep=5pt, breaklines=true]
+  def find_pivot_largest_coefficient(tableau):
+    """
+    Using largest coefficient rule and the minimum ratio test, find the pivot entry in the tableau.
+
+    Parameters
+    ----------
+    tableau : array
+        The simplex method tableau in basic form
+
+    Returns
+    -------
+    r, s : integer
+        Row and column indexes of the pivot
+
+    Notes
+    -----
+    Assumes that there is a negative reduced cost that we can pivot on.
+    """
+    M, N = tableau.shape
+    m = M - 1
+    n = N - 1
+    # Largest coefficient rule: find the most negative reduced cost
+    t = 1
+    s = t
+    while t <= n:
+        if tableau[0, s] > tableau[0, t]:
+            s = t
+        t += 1
+    # Minimum ratio test and largest subscript rule put together:
+    r = 0
+    theta_star = np.inf
+    for i in range(m, 0, -1):
+        if tableau[i, s] > 0:
+            if tableau[i, 0] / tableau[i, s] < theta_star:
+                r = i
+                theta_star = tableau[i, 0] / tableau[i, s]
+    final_r = r
+    final_s = s
+    return final_r, final_s
+\end{lstlisting}
+  
+
+\section{Complexity analysis}
+\label{sec:complexity}
+
+\subsection{Complexity of  \texttt{find\_pivot\_largest\_subscript}}
+\label{sec:complexity_ls}
+
+\begin{itemize}
+  \item   Lines 20-22 take $\mathcal{O}(1)$.
+  \item Line 24 takes $\mathcal{O}(1)$.
+  \item Lines 25 and 26 loop.
+  %
+  \item Each time the lines 25-26 are repeated:
+  %
+  \begin{itemize}
+
+    \item Line 26 takes $\mathcal{O}(1)$. Since, due to line 25, it is repeated $\mathcal{O}(n)$ times, it overall takes $\mathcal{O}(n)$.
+  \end{itemize}
+  %
+\end{itemize}
+\begin{itemize}
+  \item Lines 28-29 take $\mathcal{O}(1)$.
+  \item Lines 30-34 loop.
+  %
+  \item Each time the block of lines 30-34 is repeated:
+  %
+  \begin{itemize}
+
+    \item  Each operation in the loop takes $\mathcal{O}(1)$. Since, due to line 30, it is repeated $\mathcal{O}(m)$ times, it overall takes $\mathcal{O}(m)$.
+  \end{itemize}
+  %
+  \item Lines 35-36 take $\mathcal{O}(1)$.
+  \item n is assumed to be much greater than m
+
+Overall, we have a complexity of:
+\begin{equation}
+    \label{eq:complexity_ls}
+  \mathcal{O}(1) + \mathcal{O}(1) + \mathcal{O}(n) \mathcal{O}(1) + \mathcal{O}(1) + \mathcal{O}(m) \mathcal{O}(1) + \mathcal{O}(1) = \mathcal{O}(m + n) =  \mathcal{O}(n).
+\end{equation}
+\subsection{Complexity of  \texttt{find\_pivot\_largest\_coefficient}}
+\label{sec:complexity_lc}
+  
+  \item   Lines 20-22 take $\mathcal{O}(1)$.
+  \item Lines 24-25 take $\mathcal{O}(1)$.
+  \item Lines 26-29 loop.
+  %
+  \item Each time the block of lines 26-29 is repeated:
+  %
+  \begin{itemize}
+
+    \item  Each operation from lines 27-29 takes $\mathcal{O}(1)$. Since, due to line 26, it is repeated $\mathcal{O}(n)$ times, it overall takes $\mathcal{O}(n)$.
+  \end{itemize}
+  %
+\end{itemize}
+
+\begin{itemize}
+  \item Lines 31-32 take $\mathcal{O}(1)$.
+  \item Lines 33-37 loop.
+  %
+  \item Each time the block of lines 33-37 is repeated:
+  %
+  \begin{itemize}
+
+    \item  Each operation in the loop takes $\mathcal{O}(1)$. Since, due to line 33, it is repeated $\mathcal{O}(m)$ times, it overall takes $\mathcal{O}(m)$.
+  \end{itemize}
+  %
+  \item Lines 38-39 take $\mathcal{O}(1)$.
+  \item n is assumed to be much greater than m
+\end{itemize}
+
+Overall, we have a complexity of:
+\begin{equation}
+    \label{eq:complexity_ls}
+  \mathcal{O}(1) + \mathcal{O}(1) + \mathcal{O}(n) \mathcal{O}(1) + \mathcal{O}(1) + \mathcal{O}(m) \mathcal{O}(1) + \mathcal{O}(1) = \mathcal{O}(m + n)  = \mathcal{O}(n).
+\end{equation}
+
+\section{Excel analysis}
+\label{sec:excel}
+
+\begin{table}[h!]
+  \caption{A table which gives the slope and intercept of each pivoting method for average and worst times against instance size.}
+  \begin{center}
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{c|rrrrrr}
+      Pivoting & log(Smallest & log(Largest & log(Largest & log(Smallest & log(Largest & log(Largest \\
+      method & subscript\_avg) & subscript\_avg) & coeff\_avg) & subscript\_worst) & subscript\_worst) & coeff\_worst) \\
+      \hline
+      Slope & 1.4258 & 1.3855 & 1.2015 & 1.461 & 1.3148 & 1.3002 \\
+      Intercept & -4.883 & -4.8116 & -4.834 & -4.4215 & -4.134 & -4.605 \\
+    \end{tabular}
+  \end{center}
+\label{tab:1}
+\end{table}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\textwidth]{./Graph of average runtime against instance size for each pivoting method.pdf}
+  \end{center}
+  \caption{The line for the largest coefficient rule (green) is shallower than the line for Bland's rule (blue) and the largest subscript rule line (red), implying that for much larger instance sizes, on average, the largest coefficient rule will be more efficient (be quicker) than the other methods.
+    %
+  }
+  \label{fig:a_figure}
+\end{figure}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\textwidth]{./Graph of worst runtime against instance size for each pivoting method.pdf}
+  \end{center}
+  \caption{The line for the largest coefficient rule (green) is shallower than the line for Bland's rule (blue) and the largest subscript rule line (red), implying that for much larger instance sizes, for the worst case, the largest coefficient rule will be more efficient (be quicker) than the other methods.
+    %
+  }
+  \label{fig:a_figure}
+\end{figure}
+
+\section{Efficiency}
+\label{sec:efficiency}
+
+After analysing the complexity of all three pivoting methods, all three have a complexity of O(n). This implies that as n becomes very large, all three methods will be similar in efficiency. However, when plotting the logarithm of average runtime of each method against the logarithm of instance size, the largest coefficient rule had the shallowest slope at 1.2015, indicating that it is the most efficient for large instance sizes. The largest subscript rule had a slightly steeper slope at 1.3855, while Bland's rule had the steepest at 1.4258, making it the least efficient as size increases. Analysing the y-intercepts of the average runtime, Bland's rule had the smallest at -4.883, making it the most efficient for small enough instance sizes. The largest coefficient method followed with an intercept of -4.834, and the largest subscript method had the largest at -4.8116, making it the least efficient at smaller sizes. The crossover point between Bland's rule and the largest subscript rule occurs at log(n) = 1.772 to 3 d.p. (approximately 59.2 instance size), meaning the largest subscript rule becomes more efficient than Bland's rule beyond this point. Bland's rule and the largest coefficient rule cross at log(n) = 0.218 to 3 d.p., or instance size 1.7, which is negligibly small. Therefore, the largest coefficient rule is more efficient than Bland's rule at all practical sizes. Since the largest coefficient method also has both a shallower slope and smaller intercept than the largest subscript rule, it is more efficient across all instance sizes on average. Based on average runtimes, the largest coefficient rule is clearly the most efficient pivoting method. Now moving on to the slowest runtimes, it showed a similar pattern, where the largest coefficient rule had the shallowest slope at 1.3002, followed by the largest subscript rule at a slope of 1.3148 and lastly by Bland's rule with the steepest slope of 1.461, implying that for large enough instance sizes, the largest coefficient rule is the most efficient in the slowest runtimes. The largest coefficient rule also had the smallest intercept at -4.605, followed by Bland's rule at -4.4215 and lastly by the largest subscript rule with the least efficient at -4.134. This meant for small instance sizes, the largest coefficient is the most efficient, with Bland's rule being slightly less efficient and the largest subscript rule being the least efficient for the slowest runtimes. Overall, clearly the largest coefficient rule is the most efficient pivoting method.
+
+\end{document}
