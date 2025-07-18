@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.ipynb_checkpoints
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.synctex.gz
+*.vrb
+
+# Ignore all PDFs
+*.pdf
+
+# except these:
+!report/simplex_pivot_report.pdf
+!analysis/avg_runtime_plot.pdf
+!analysis/worst_runtime_plot.pdf
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Excel temp files
+~$*.xlsx
